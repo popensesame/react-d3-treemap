@@ -1,8 +1,4 @@
 {
-  "x": 0,
-  "y": 0,
-  "dx": 400,
-  "dy": 400,
   "name": "beings",
   "children": [
     {

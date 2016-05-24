@@ -1,0 +1,41 @@
+rect.grandparent {
+  stroke-width: 2px;
+  fill: orange;
+  fill-opacity: .8;
+}
+
+rect.grandparent:hover {
+  stroke-width: 2px;
+  fill: orange;
+  fill-opacity: 1;
+}
+
+rect.parent {
+  stroke-width: 2px;
+  stroke: #fff;
+}
+
+rect.child, rect.leaf {
+  stroke-width: 1px;
+  stroke: #fff;
+  fill: #bbb;
+}
+
+.children:hover rect.child {
+  stroke-width: 1px;
+  stroke: #fff;
+  fill: #bbb;
+  fill-opacity: .8;
+}
+
+rect.grandparent,
+rect.child {
+  cursor: pointer;
+}
+
+
+text {
+  font: 10px sans-serif;
+  font-weight: bold;
+  dominant-baseline: hanging;
+}
