@@ -29,10 +29,10 @@ rect.child, rect.leaf {
 }
 
 rect.grandparent,
-rect.child {
+rect.child,
+svg text {
   cursor: pointer;
 }
-
 
 text {
   font: 10px sans-serif;

@@ -1,32 +1,26 @@
 import React from 'react';
 import d3 from 'd3';
 
-const rootHeight = 20;
-
-export default class Treemap extends React.Component{
-
+export default class Treemap extends React.Component {
   constructor(props) {
     super(props);
-
     this.treemap = d3.layout.treemap()
-        .size([props.width, props.height - rootHeight])
-        .value((d) => d.size)
-        .children((d) => d.children);
-
-    this.nodes = this.treemap.nodes(props._tree);
-
+        .size([props.width, props.height - props.rootHeight])
+        .value(props.value)
+        .children(props.children);
+    this.nodes = this.treemap.nodes(props.root);
     this.state = {
       depth: props.depth,
-      grandparent: this.nodes.filter((d) => d.parent === null ),
+      grandparent: this.nodes[0],
+      grandparentText: props.id(this.nodes[0]),
       parents: this.nodes.filter((d) => d.depth === 1),
       xScale: d3.scale.linear()
         .domain([0, this.props.width])
         .range([0, this.props.width]),
       yScale: d3.scale.linear()
         .domain([0, this.props.height])
-        .range([rootHeight, this.props.height]),
+        .range([this.props.rootHeight, this.props.height]),
     };
-
   }
 
   render() {
@@ -37,9 +31,9 @@ export default class Treemap extends React.Component{
           <rect
             className={'grandparent'}
             width={this.props.width}
-            height={20}>
+            height={this.props.rootHeight}>
           </rect>
-          <text x={4} y={6}>{this.state.grandparent.name}</text>
+          <text x={4} y={6}>{this.state.grandparentText}</text>
         </g>
         <g className={'depth'}>
           { this.state.parents.map( (node) => this.renderNode(node), this) }          
@@ -56,7 +50,7 @@ export default class Treemap extends React.Component{
         { this.renderText(node) }
       </g>
     } else {
-      return <g className={'children'} onClick={this.zoom.bind(this, node, 'in')}>
+      return <g className={'children'}>
         { this.renderRect(node, 'leaf') }
         { this.renderText(node) }
       </g>
@@ -68,7 +62,7 @@ export default class Treemap extends React.Component{
       x={this.state.xScale(node.x) + 4}
       y={this.state.yScale(node.y) - 2}
       dy={'.75em'}>
-        {node.name}
+        {this.props.id(node)}
     </text>
   }
 
@@ -83,9 +77,17 @@ export default class Treemap extends React.Component{
   }
 
   zoom(node, direction) {
-    if (!node.children) return;
-    if (direction==='out' && node.parent) {
+    if (direction === 'out' && node.parent) {
       node = node.parent;
+      this.setState({
+        grandparentText: this.state.grandparentText
+          .split('.').slice(0, -1).join('.')
+      })
+    } else if (direction === 'in' && node.parent){
+      this.setState({
+        grandparentText: this.state.grandparentText
+          += '.' + this.props.id(node)
+      })
     }
     this.setState({
       depth: this.state.depth + 1,
@@ -97,10 +99,31 @@ export default class Treemap extends React.Component{
       ,
       yScale: d3.scale.linear()
         .domain([node.y, node.y + node.dy])
-        .range([rootHeight, this.props.height])
+        .range([this.props.rootHeight, this.props.height])
       ,
     });
   }
 
 }
 
+Treemap.defaultProps = {
+  width: 500,
+  height: 500,
+  rootHeight: 20,
+  value: (node) => node.size,
+  children: (node) => node.children,
+  id: (node) => node.name,
+}
+
+Treemap.propTypes = {
+  width: React.PropTypes.number.isRequired,
+  height: React.PropTypes.number.isRequired,
+  rootHeight: React.PropTypes.number.isRequired,
+
+  value: React.PropTypes.func.isRequired,
+  children: React.PropTypes.func.isRequired,
+  id: React.PropTypes.func.isRequired,
+
+  _tree: React.PropTypes.object.isRequired,
+  root: React.PropTypes.object.isRequired,
+}

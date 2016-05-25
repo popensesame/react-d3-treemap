@@ -5,12 +5,11 @@ import d3 from 'd3';
 
 import Treemap from './components/treemap.jsx';
 
+const _tree = require('./data.json');
+
 const props = {
-  width: 500,
-  height: 500,
-  depth: 0,
-  root: 'beings',
-  _tree: require('./data.json')
+  _tree: _tree,
+  root: _tree,
 }
 
 const mountingPoint = document.createElement('div');
