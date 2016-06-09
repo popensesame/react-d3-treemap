@@ -2,6 +2,8 @@ import React from 'react';
 import d3 from 'd3';
 
 export default class Treemap extends React.Component {
+
+  // componentWillMount()
   constructor(props) {
     super(props);
     this.treemap = d3.layout.treemap()
@@ -13,7 +15,7 @@ export default class Treemap extends React.Component {
       depth: props.depth,
       grandparent: this.nodes[0],
       grandparentText: props.id(this.nodes[0]),
-      parents: this.nodes.filter((d) => d.depth === 1),
+      parents: props.children(this.nodes[0]),
       xScale: d3.scale.linear()
         .domain([0, props.width])
         .range([0, props.width]),
@@ -66,7 +68,7 @@ export default class Treemap extends React.Component {
       x={this.state.xScale(node.x) + 4}
       y={this.state.yScale(node.y) - 2}
       dy={'.75em'}>
-        {this.props.id(node)}
+        {this.props.id(node) + ': ' + this.props.value(node)}
     </text>
   }
 
@@ -109,15 +111,6 @@ export default class Treemap extends React.Component {
     });
   }
 }
-/*
-      xScale: d3.scale.linear()
-        .domain([0, this.props.width])
-        .range([0, this.props.width]),
-      yScale: d3.scale.linear()
-        .domain([0, this.props.height])
-        .range([this.props.rootHeight, this.props.height]),
-*/
-
 
 Treemap.defaultProps = {
   width: 500,
@@ -132,11 +125,9 @@ Treemap.propTypes = {
   width: React.PropTypes.number.isRequired,
   height: React.PropTypes.number.isRequired,
   rootHeight: React.PropTypes.number.isRequired,
-
   value: React.PropTypes.func.isRequired,
   children: React.PropTypes.func.isRequired,
   id: React.PropTypes.func.isRequired,
 
-  _tree: React.PropTypes.object.isRequired,
   root: React.PropTypes.object.isRequired,
 }

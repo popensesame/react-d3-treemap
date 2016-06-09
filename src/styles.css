@@ -1,5 +1,5 @@
 rect.grandparent {
-  stroke-width: 3.5px;
+  stroke-width: 4px;
   fill: orange;
   fill-opacity: .8;
 }
@@ -11,26 +11,25 @@ rect.grandparent:hover {
 }
 
 rect.parent {
-  stroke-width: 3.5px;
+  stroke-width: 4px;
   stroke: #fff;
 }
 
 rect.child, rect.leaf {
-  stroke-width: .3px;
+  stroke-width: .5px;
   stroke: #fff;
   fill: #bbb;
 }
 
 .children:hover rect.child {
-  stroke-width: .3px;
+  stroke-width: .5px;
   stroke: #fff;
   fill: #bbb;
   fill-opacity: .8;
 }
 
-rect.grandparent,
-rect.child,
-svg text {
+g.grandparent,
+g.children {
   cursor: pointer;
 }
 

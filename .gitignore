@@ -1,4 +1,4 @@
-
+.gitignore
 node_modules/
-src/data.json
+data
 *.log
