@@ -15,8 +15,20 @@ rect.parent {
   stroke: #fff;
 }
 
-rect.child, rect.leaf {
+rect.leaf {
+  fill: #bbb;
+  stroke-width: 4px;
+  stroke: #fff;
+}
+
+rect.child {
   stroke-width: .5px;
+  stroke: #fff;
+  fill: #bbb;
+}
+
+.children:hover rect.leaf {
+  stroke-width: 4px;
   stroke: #fff;
   fill: #bbb;
 }

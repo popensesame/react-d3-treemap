@@ -1,8 +1,6 @@
 import React from 'react';
 import d3 from 'd3';
 
-const VAL_PRECISION = 3;
-
 export default class Treemap extends React.Component {
 
   // componentWillMount()
@@ -11,7 +9,8 @@ export default class Treemap extends React.Component {
     this.treemap = d3.layout.treemap()
         .size([props.width, props.height - props.rootHeight])
         .value(props.value)
-        .children(props.children);
+        .children(props.children)
+        .mode('squarify');
     this.treemap.sort((a, b) => {
       return this.treemap.value(b) - this.treemap.value(a);
     })
@@ -83,6 +82,7 @@ export default class Treemap extends React.Component {
 
   renderRect(node, relation) {
     return <rect
+      key={node.OBJECTID}
       className={relation}
       x={this.state.xScale(node.x)}
       y={this.state.yScale(node.y)}

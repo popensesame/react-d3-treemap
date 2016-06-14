@@ -1,6 +1,9 @@
 
 const DECIMAL_PRECISION = 3;
 
+// Build a tree from a list of chart data for all HUC12s in a single HUC8
+// An example query's WHERE field:
+// geography_match_id='03020104' and chart_value is not null
 export const makeTreeFromHuc8Data = (data) => {
   var catUnitId,
       tree = {
@@ -23,6 +26,8 @@ export const makeTreeFromHuc8Data = (data) => {
   return tree;
 }
 
+// Build a tree from a list of chart data for a single HUC12
+// Chart values are rounded and zero values are not used.
 export const makeTreeFromHuc12Data = (data, id) => {
   var tree = data.filter( (d) => d.chart_level === 1)[0];
   tree.children = [];
