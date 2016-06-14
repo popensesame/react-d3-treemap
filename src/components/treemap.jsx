@@ -59,13 +59,13 @@ export default class Treemap extends React.Component {
 
   renderNode(node) {
     if (node.children) {
-      return <g className={'children'} onClick={this.zoom.bind(this, node)}>
+      return <g key={node.OBJECTID} className={'children'} onClick={this.zoom.bind(this, node)}>
         { this.renderRect(node, 'parent') }
         { node.children.map( (child) => this.renderRect(child, 'child') ) }
         { this.renderText(node) }
       </g>
     } else {
-      return <g className={'children'}>
+      return <g key={node.OBJECTID} className={'children'}>
         { this.renderRect(node, 'leaf') }
         { this.renderText(node) }
       </g>
@@ -125,7 +125,7 @@ Treemap.defaultProps = {
   width: 500,
   height: 500,
   rootHeight: 20,
-  value: (d) => (1*d.chart_value).toFixed(3),
+  value: (d) => d.chart_value,
   children: (d) => d.children,
   id: (d) => {
     if (d.chart_level > 1) return d.chart_level_label;
