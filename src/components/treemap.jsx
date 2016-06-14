@@ -1,6 +1,8 @@
 import React from 'react';
 import d3 from 'd3';
 
+const VAL_PRECISION = 3;
+
 export default class Treemap extends React.Component {
 
   // componentWillMount()
@@ -10,6 +12,9 @@ export default class Treemap extends React.Component {
         .size([props.width, props.height - props.rootHeight])
         .value(props.value)
         .children(props.children);
+    this.treemap.sort((a, b) => {
+      return this.treemap.value(b) - this.treemap.value(a);
+    })
     this.nodes = this.treemap.nodes(props.root);
     this.state = {
       depth: props.depth,
@@ -42,7 +47,11 @@ export default class Treemap extends React.Component {
           <text x={4} y={6}>{this.state.grandparentText}</text>
         </g>
         <g className={'depth'}>
-          { this.state.parents.map( (node) => this.renderNode(node), this) }          
+          {
+            this.state.parents.map( (node) => {
+              if (this.props.value(node) > 0) { return this.renderNode(node) }
+            }, this)
+          }          
         </g>
       </g>
     </svg>
@@ -68,7 +77,7 @@ export default class Treemap extends React.Component {
       x={this.state.xScale(node.x) + 4}
       y={this.state.yScale(node.y) - 2}
       dy={'.75em'}>
-        {this.props.id(node) + ': ' + this.props.value(node)}
+        { this.props.id(node) + ': ' + this.props.value(node) }
     </text>
   }
 
@@ -116,9 +125,13 @@ Treemap.defaultProps = {
   width: 500,
   height: 500,
   rootHeight: 20,
-  value: (node) => node.size,
-  children: (node) => node.children,
-  id: (node) => node.name,
+  value: (d) => (1*d.chart_value).toFixed(3),
+  children: (d) => d.children,
+  id: (d) => {
+    if (d.chart_level > 1) return d.chart_level_label;
+    if (d.geography_level > 2) return d.ID.slice(-4);
+    return d.ID;
+  },
 }
 
 Treemap.propTypes = {
