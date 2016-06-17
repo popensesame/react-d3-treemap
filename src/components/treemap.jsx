@@ -44,7 +44,7 @@ export default class Treemap extends React.Component {
         </g>
         <g className={'depth'}>
           {
-            this.state.nodes.map( (node) => return this.renderNode(node), this)
+            this.state.nodes.map( (node) => this.renderNode(node), this)
           }
         </g>
       </g>
