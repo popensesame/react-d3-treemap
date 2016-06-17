@@ -6,9 +6,9 @@ const DECIMAL_PRECISION = 3;
 // geography_match_id='03020104' and chart_value is not null
 export const makeTreeFromHuc8Data = (data) => {
   var catUnitId,
-      tree = {
+      huc8_root = {
         ID : 'HUC8 ' + data[0].properties.geography_match_id,
-        children : [],
+        _children : [],
       },
       huc12s = new Map();
   data.forEach( (d) => {
@@ -21,16 +21,16 @@ export const makeTreeFromHuc8Data = (data) => {
     }
   });
   huc12s.forEach((arr, id) => {
-    if (arr.length === 16) tree.children.push(makeTreeFromHuc12Data(arr, id));
+    if (arr.length === 16) huc8_root._children.push(makeTreeFromHuc12Data(arr, id));
   });
-  return tree;
+  return huc8_root;
 }
 
 // Build a tree from a list of chart data for a single HUC12
 // Chart values are rounded and zero values are not used.
 export const makeTreeFromHuc12Data = (data, id) => {
-  var tree = data.filter( (d) => d.chart_level === 1)[0];
-  tree.children = [];
+  var huc12_root = data.filter( (d) => d.chart_level === 1)[0];
+  huc12_root._children = [];
   var chart_levels = new Map();
   for (var i=2; i<=4; i++) {
     chart_levels.set(i, data.filter( (d) => {
@@ -39,27 +39,27 @@ export const makeTreeFromHuc12Data = (data, id) => {
     }));
   }
   chart_levels.get(2).forEach((d) => {
-    tree.children.push(d);
+    huc12_root._children.push(d);
   });
   chart_levels.get(3).forEach((d) => {
-    tree.children.forEach((e) => {
+    huc12_root._children.forEach((e) => {
       if (d.chart_matchid === e.chart_id) {
-        if (!e.children) e.children = [];
-        e.children.push(d);
+        if (!e._children) e._children = [];
+        e._children.push(d);
       }
     })
   });
   chart_levels.get(4).forEach((d) => {
-    tree.children.forEach((e) => {
-      if (e.children) {
-        e.children.forEach((f) => {
+    huc12_root._children.forEach((e) => {
+      if (e._children) {
+        e._children.forEach((f) => {
           if (d.chart_matchid === f.chart_id) {
-            if (!f.children) f.children = [];
-            f.children.push(d);
+            if (!f._children) f._children = [];
+            f._children.push(d);
           }
         });
       }
     });
   });
-  return tree;
+  return huc12_root;
 }
