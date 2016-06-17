@@ -13,6 +13,7 @@ rect.grandparent:hover {
 rect.parent {
   stroke-width: 4px;
   stroke: #fff;
+  fill: #bbb;
 }
 
 rect.leaf {

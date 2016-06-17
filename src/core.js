@@ -21,15 +21,17 @@ export const makeTreeFromHuc8Data = (data) => {
     }
   });
   huc12s.forEach((arr, id) => {
-    if (arr.length === 16) tree.children.push(makeTreeFromHuc12Data(arr, id));
+    if (arr.length === 16) tree.children.push(makeTreeFromHuc12Data(arr));
   });
   return tree;
 }
 
 // Build a tree from a list of chart data for a single HUC12
 // Chart values are rounded and zero values are not used.
-export const makeTreeFromHuc12Data = (data, id) => {
+export const makeTreeFromHuc12Data = (data) => {
+  if (data[0].properties) data = data.map( (d) => d.properties);
   var tree = data.filter( (d) => d.chart_level === 1)[0];
+  console.log(tree);
   tree.children = [];
   var chart_levels = new Map();
   for (var i=2; i<=4; i++) {
