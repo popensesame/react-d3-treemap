@@ -1,24 +1,24 @@
 rect.grandparent {
-  stroke-width: 4px;
+  stroke-width: 3px;
   fill: orange;
   fill-opacity: .8;
 }
 
 rect.grandparent:hover {
-  stroke-width: 3.5px;
+  stroke-width: 3px;
   fill: orange;
   fill-opacity: 1;
 }
 
 rect.parent {
-  stroke-width: 4px;
+  stroke-width: 3px;
   stroke: #fff;
   fill: #bbb;
 }
 
 rect.leaf {
   fill: #bbb;
-  stroke-width: 4px;
+  stroke-width: 3px;
   stroke: #fff;
 }
 
@@ -28,14 +28,14 @@ rect.child {
   fill: #bbb;
 }
 
-.children:hover rect.leaf {
-  stroke-width: 4px;
+.children rect.parent {
+  stroke-width: 3px;
   stroke: #fff;
-  fill: #bbb;
+  fill: #aaa;
 }
 
-.children:hover rect.child {
-  stroke-width: .5px;
+.children:hover rect.parent {
+  stroke-width: 3px;
   stroke: #fff;
   fill: #bbb;
   fill-opacity: .8;

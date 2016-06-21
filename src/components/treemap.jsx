@@ -10,16 +10,13 @@ export default class Treemap extends React.Component {
         .size([props.width, props.height - props.rootHeight])
         .value(props.value)
         .children(props.children)
-        .mode('squarify');
-    this.treemap.sort((a, b) => {
-      return this.treemap.value(b) - this.treemap.value(a);
-    })
-    this.nodes = this.treemap.nodes(props.root);
+        .sort((a, b) => props.value(a) - props.value(b));
+    //this.treemap.nodes({children: props.root._children});
+    this.layout(props.root);
     this.state = {
-      depth: props.depth,
-      grandparent: this.nodes[0],
-      grandparentText: props.id(this.nodes[0]),
-      parents: props.children(this.nodes[0]),
+      grandparent: props.root,
+      grandparentText: props.id(props.root),
+      nodes: props.root._children,
       xScale: d3.scale.linear()
         .domain([0, props.width])
         .range([0, props.width]),
@@ -27,6 +24,13 @@ export default class Treemap extends React.Component {
         .domain([0, props.height])
         .range([props.rootHeight, props.height + props.rootHeight]),
     };
+  }
+
+  layout(node) {
+    this.treemap.nodes({ children: node._children });
+    node._children.forEach((d) => {
+      d.parent = node;
+    });
   }
 
   render() {
@@ -47,24 +51,29 @@ export default class Treemap extends React.Component {
         </g>
         <g className={'depth'}>
           {
-            this.state.parents.map( (node) => {
-              if (this.props.value(node) > 0) { return this.renderNode(node) }
-            }, this)
-          }          
+            this.state.nodes.map( (node) => this.renderNode(node), this)
+          }
         </g>
       </g>
     </svg>
   }
 
   renderNode(node) {
-    if (node.children) {
-      return <g key={node.OBJECTID} className={'children'} onClick={this.zoom.bind(this, node)}>
+    if (node._children) {
+      return <g
+          key={node.OBJECTID}
+          className={'children'}
+          onClick={this.zoom.bind(this, node)}
+        >
         { this.renderRect(node, 'parent') }
-        { node.children.map( (child) => this.renderRect(child, 'child') ) }
+        { /* node._children.map( (child) => this.renderRect(child, 'child') ) */ }
         { this.renderText(node) }
       </g>
     } else {
-      return <g key={node.OBJECTID} className={'children'}>
+      return <g
+          key={node.OBJECTID}
+          className={'children'}
+        >
         { this.renderRect(node, 'leaf') }
         { this.renderText(node) }
       </g>
@@ -91,33 +100,31 @@ export default class Treemap extends React.Component {
     </rect>
   }
 
+  // Is the reference to node.parent just referring to
+  // the dummy object we create every time we run the
+  // treemap algorithm?
   zoom(node) {
     if (node === this.state.grandparent) {
       node = node.parent;
+      this.layout(node);
+      //node = node.parent;
+      //this.treemap.nodes({children: node.children});
       this.setState({
-        depth: this.state.depth -= 1,
+        grandparent: node,
+        nodes: node._children,
         grandparentText: this.state.grandparentText
-          .split('.').slice(0, -1).join('.')
+          .split('.').slice(0, -1).join('.'),
       });
     } else {
+      this.layout(node);
+      //this.treemap.nodes({children: node._children})
       this.setState({
-        depth: this.state.depth += 1,
+        grandparent: node,
+        nodes: node._children,
         grandparentText: this.state.grandparentText
           += '.' + this.props.id(node)
       });
     }
-    this.setState({
-      grandparent: node,
-      parents: node.children,
-      xScale: d3.scale.linear()
-        .domain([node.x, node.x + node.dx])
-        .range([0, this.props.width])
-      ,
-      yScale: d3.scale.linear()
-        .domain([node.y, node.y + node.dy])
-        .range([this.props.rootHeight, this.props.height])
-      ,
-    });
   }
 }
 
