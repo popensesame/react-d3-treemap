@@ -1,5 +1,5 @@
 
-const DECIMAL_PRECISION = 3;
+const DECIMAL_PRECISION = 5;
 
 // Build a tree from a list of chart data for all HUC12s in a single HUC8
 // An example query's WHERE field:
