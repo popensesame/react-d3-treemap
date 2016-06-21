@@ -1,37 +1,43 @@
 
-const DECIMAL_PRECISION = 6;
+const DECIMAL_PRECISION = 4;
 
 // Build a tree from a list of chart data for all HUC12s in a single HUC8
 // An example query's WHERE field:
 // geography_match_id='03020104' and chart_value is not null
 export const makeTreeFromHuc8Data = (data) => {
-  var catUnitId,
-      huc8Tree = {
+  var huc8Tree = {
         ID : 'HUC8 ' + data[0].properties.geography_match_id,
         children : [],
       },
-      huc12s = new Map();
+      huc12Map = new Map();
+  // Organize the list of features by HUC12 with a map keyed by ID
   data.forEach( (d) => {
     d = d.properties;
-    if (!huc12s.has(d.ID)) {
-      huc12s.set(
+    if (!huc12Map.has(d.ID)) {
+      huc12Map.set(
         d.ID,
-        data.filter((e) => d.ID === e.properties.ID).map((f) => f.properties)
+        data.filter((e) => d.ID === e.properties.ID)
+            .map((f) => f.properties)
       );
     }
   });
-  huc12s.forEach((arr, id) => {
+  // For each HUC12 feature list build a subtree and add it to the HUC8 tree.
+  // If a HUC12 has incomplete data (< 16 features), do not include it.
+  huc12Map.forEach((arr, id) => {
     if (arr.length === 16) huc8Tree.children.push(makeTreeFromHuc12Data(arr));
   });
   return huc8Tree;
 }
 
 // Build a tree from a list of chart data for a single HUC12
-// Chart values are rounded and zero values are not used.
+// Chart values are rounded to a constant precision, and zero values are not used.
 export const makeTreeFromHuc12Data = (data) => {
-  if (data[0].properties) data = data.map( (d) => d.properties);
+  if (data[0].properties) data = data.map( (d) => {
+    d = d.properties
+    delete d.geography_level;
+    return d;
+  });
   var huc12Tree = data.filter( (d) => d.chart_level === 1)[0];
-  console.log(huc12Tree);
   huc12Tree.children = [];
   var chart_levels = new Map();
   for (var i=2; i<=4; i++) {
@@ -63,6 +69,5 @@ export const makeTreeFromHuc12Data = (data) => {
       }
     });
   });
-  console.log(chart_levels);
   return huc12Tree;
 }
