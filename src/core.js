@@ -34,7 +34,6 @@ export const makeTreeFromHuc8Data = (data) => {
 export const makeTreeFromHuc12Data = (data) => {
   if (data[0].properties) data = data.map( (d) => {
     d = d.properties
-    delete d.geography_level;
     return d;
   });
   var huc12Tree = data.filter( (d) => d.chart_level === 1)[0];
