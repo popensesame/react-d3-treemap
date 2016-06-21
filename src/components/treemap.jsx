@@ -100,31 +100,24 @@ export default class Treemap extends React.Component {
     </rect>
   }
 
-  // Is the reference to node.parent just referring to
-  // the dummy object we create every time we run the
-  // treemap algorithm?
   zoom(node) {
     if (node === this.state.grandparent) {
       node = node.parent;
-      this.layout(node);
-      //node = node.parent;
-      //this.treemap.nodes({children: node.children});
       this.setState({
-        grandparent: node,
-        nodes: node._children,
         grandparentText: this.state.grandparentText
           .split('.').slice(0, -1).join('.'),
       });
     } else {
-      this.layout(node);
-      //this.treemap.nodes({children: node._children})
       this.setState({
-        grandparent: node,
-        nodes: node._children,
         grandparentText: this.state.grandparentText
           += '.' + this.props.id(node)
       });
     }
+    this.layout(node);
+    this.setState({
+      grandparent: node,
+      nodes: node._children,
+    });
   }
 }
 
