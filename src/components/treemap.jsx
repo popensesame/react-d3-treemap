@@ -11,8 +11,8 @@ export default class Treemap extends React.Component {
         .value(props.value)
         .children(props.children)
         .sort((a, b) => props.value(a) - props.value(b));
-    this.treemap.nodes({children: props.root._children});
-    console.log(props.root);
+    //this.treemap.nodes({children: props.root._children});
+    this.layout(props.root);
     this.state = {
       grandparent: props.root,
       grandparentText: props.id(props.root),
@@ -24,6 +24,13 @@ export default class Treemap extends React.Component {
         .domain([0, props.height])
         .range([props.rootHeight, props.height + props.rootHeight]),
     };
+  }
+
+  layout(node) {
+    this.treemap.nodes({ children: node._children });
+    node._children.forEach((d) => {
+      d.parent = node;
+    });
   }
 
   render() {
@@ -93,33 +100,31 @@ export default class Treemap extends React.Component {
     </rect>
   }
 
+  // Is the reference to node.parent just referring to
+  // the dummy object we create every time we run the
+  // treemap algorithm?
   zoom(node) {
     if (node === this.state.grandparent) {
       node = node.parent;
+      this.layout(node);
+      //node = node.parent;
+      //this.treemap.nodes({children: node.children});
       this.setState({
+        grandparent: node,
+        nodes: node._children,
         grandparentText: this.state.grandparentText
           .split('.').slice(0, -1).join('.'),
       });
     } else {
+      this.layout(node);
+      //this.treemap.nodes({children: node._children})
       this.setState({
+        grandparent: node,
+        nodes: node._children,
         grandparentText: this.state.grandparentText
           += '.' + this.props.id(node)
       });
     }
-    this.treemap.nodes({children: node._children})
-    console.log(node);
-    this.setState({
-      grandparent: node,
-      nodes: node._children,
-      /*xScale: d3.scale.linear()
-        .domain([node.x, node.x + node.dx])
-        .range([0, this.props.width])
-      ,
-      yScale: d3.scale.linear()
-        .domain([node.y, node.y + node.dy])
-        .range([this.props.rootHeight, this.props.height])
-      ,*/
-    });
   }
 }
 
