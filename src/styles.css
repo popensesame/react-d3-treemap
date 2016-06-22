@@ -1,3 +1,11 @@
+rect.tooltip {
+  position: relative;
+  display: inline-block;
+  fill: white;
+  stroke-width: 1px;
+  stroke: black;
+}
+
 rect.grandparent {
   stroke-width: 3px;
   fill: orange;

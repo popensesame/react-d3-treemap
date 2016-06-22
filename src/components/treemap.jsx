@@ -1,6 +1,9 @@
 import React from 'react';
 import d3 from 'd3';
 
+const TOOLTIP_WIDTH = 170;
+const TOOLTIP_HEIGHT = 32;
+
 export default class Treemap extends React.Component {
 
   // componentWillMount()
@@ -17,6 +20,7 @@ export default class Treemap extends React.Component {
       grandparent: props.root,
       grandparentText: props.id(props.root),
       nodes: props.root._children,
+      tooltip: null,
       xScale: d3.scale.linear()
         .domain([0, props.width])
         .range([0, props.width]),
@@ -50,15 +54,29 @@ export default class Treemap extends React.Component {
           <text x={4} y={6}>{this.state.grandparentText}</text>
         </g>
         <g className={'depth'}>
-          {
-            this.state.nodes.map( (node) => this.renderNode(node), this)
-          }
+          { this.state.nodes.map( (node) => this.renderNode(node), this) }
         </g>
+        { this.renderTooltip() }
       </g>
     </svg>
   }
 
   renderNode(node) {
+    return <g
+        key={node.OBJECTID}
+        className={'children'}
+        // <text> element should not be wider than the width of the child <rect>
+        // or else this <g> element will be too wide and trigger the mouse event
+        // even when the cursor is not visiting the rect element.
+        onMouseEnter={ this.setTooltip.bind(this, node) }
+        onClick={ node._children ? this.zoom.bind(this, node) : null }
+      >
+      { this.renderRect(node, node._children ? 'parent' : 'leaf') }
+      { /* node._children.map( (child) => this.renderRect(child, 'child') ) */ }
+      { this.renderText(node) }
+    </g>
+    
+    /*
     if (node._children) {
       return <g
           key={node.OBJECTID}
@@ -66,7 +84,7 @@ export default class Treemap extends React.Component {
           onClick={this.zoom.bind(this, node)}
         >
         { this.renderRect(node, 'parent') }
-        { /* node._children.map( (child) => this.renderRect(child, 'child') ) */ }
+        { node._children.map( (child) => this.renderRect(child, 'child') )  }
         { this.renderText(node) }
       </g>
     } else {
@@ -78,6 +96,7 @@ export default class Treemap extends React.Component {
         { this.renderText(node) }
       </g>
     }
+    */
   }
 
   renderText(node) {
@@ -85,7 +104,7 @@ export default class Treemap extends React.Component {
       x={this.state.xScale(node.x) + 4}
       y={this.state.yScale(node.y) - 2}
       dy={'.75em'}>
-        { this.props.id(node) + ': ' + this.props.value(node) }
+        { this.props.id(node) }
     </text>
   }
 
@@ -96,8 +115,47 @@ export default class Treemap extends React.Component {
       x={this.state.xScale(node.x)}
       y={this.state.yScale(node.y)}
       width={this.state.xScale(node.dx) - this.state.xScale(0)}
-      height={this.state.yScale(node.dy) - this.state.yScale(0)}>
-    </rect>
+      height={this.state.yScale(node.dy) - this.state.yScale(0)}
+    ></rect>
+  }
+
+  renderTooltip() {
+    if (this.state.tooltip) {
+      return <g key={'tooltip.' + this.state.tooltip.OBJECTID}>
+        <rect
+          className={'tooltip'}
+          x={ this.state.tooltip.x }
+          y={ this.state.tooltip.y }
+          width={TOOLTIP_WIDTH}
+          height={TOOLTIP_HEIGHT}
+        ></rect>
+        <text
+          x={ this.state.tooltip.x + 4}
+          y={ this.state.tooltip.y }
+          dy={5}
+        >
+          { 'id: ' + this.state.tooltip.id }
+        </text>
+        <text
+          x={ this.state.tooltip.x + 4 }
+          y={ this.state.tooltip.y }
+          dy={20}
+        >
+          { 'value: ' + this.state.tooltip.value }
+        </text>
+      </g>
+    }
+  }
+
+  setTooltip(node, event) {
+    this.setState({
+      tooltip: {
+        value: this.props.value(node),
+        id: this.props.id(node),
+        x: event.clientX,
+        y: event.clientY,
+      },
+    });
   }
 
   zoom(node) {
@@ -115,6 +173,7 @@ export default class Treemap extends React.Component {
     }
     this.layout(node);
     this.setState({
+      tooltip: null,
       grandparent: node,
       nodes: node._children,
     });
