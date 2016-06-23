@@ -15,7 +15,6 @@ export default class Treemap extends React.Component {
         .children(props.children)
         .sort((a, b) => props.value(a) - props.value(b))
         .ratio(1);
-    //this.treemap.nodes({children: props.root._children});
     this.layout(props.root);
     this.state = {
       grandparent: props.root,
@@ -38,28 +37,42 @@ export default class Treemap extends React.Component {
     });
   }
 
+  buttonSubmit() {
+    console.log('Back button pressed');
+  }
+
   render() {
-    return <svg width={this.props.width} height={this.props.height}>
-      <g>
-        <g
-          className={'grandparent'}
-          onClick={
-            this.state.grandparent.parent ?
-            this.zoom.bind(this, this.state.grandparent) : null
-          }>
-          <rect
+    return <div>
+      <button
+        className={'treemap-back-button'}
+        onClick={ this.state.grandparent.parent ?
+          this.zoom.bind(this, this.state.grandparent) : null
+        }
+      >
+        {'Back'}
+      </button>
+      <svg width={this.props.width} height={this.props.height}>
+        <g>
+          <g
             className={'grandparent'}
-            width={this.props.width}
-            height={this.props.rootHeight}>
-          </rect>
-          <text x={4} y={6}>{this.state.grandparentText}</text>
+            onClick={
+              this.state.grandparent.parent ?
+              this.zoom.bind(this, this.state.grandparent) : null
+            }>
+            <rect
+              className={'grandparent'}
+              width={this.props.width}
+              height={this.props.rootHeight}>
+            </rect>
+            <text x={4} y={6}>{this.state.grandparentText}</text>
+          </g>
+          <g className={'depth'}>
+            { this.state.nodes.map( (node) => this.renderNode(node), this) }
+          </g>
+          { this.renderTooltip() }
         </g>
-        <g className={'depth'}>
-          { this.state.nodes.map( (node) => this.renderNode(node), this) }
-        </g>
-        { this.renderTooltip() }
-      </g>
-    </svg>
+      </svg>
+    </div>
   }
 
   renderNode(node) {
@@ -76,28 +89,6 @@ export default class Treemap extends React.Component {
       { /* node._children.map( (child) => this.renderRect(child, 'child') ) */ }
       { this.renderText(node) }
     </g>
-    
-    /*
-    if (node._children) {
-      return <g
-          key={node.OBJECTID}
-          className={'children'}
-          onClick={this.zoom.bind(this, node)}
-        >
-        { this.renderRect(node, 'parent') }
-        { node._children.map( (child) => this.renderRect(child, 'child') )  }
-        { this.renderText(node) }
-      </g>
-    } else {
-      return <g
-          key={node.OBJECTID}
-          className={'children'}
-        >
-        { this.renderRect(node, 'leaf') }
-        { this.renderText(node) }
-      </g>
-    }
-    */
   }
 
   renderText(node) {
@@ -153,8 +144,8 @@ export default class Treemap extends React.Component {
       tooltip: {
         value: this.props.value(node),
         id: this.props.id(node),
-        x: event.clientX,
-        y: event.clientY,
+        x: event.screenX,
+        y: event.screenY,
       },
     });
   }

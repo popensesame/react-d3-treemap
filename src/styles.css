@@ -6,6 +6,15 @@ rect.tooltip {
   stroke: black;
 }
 
+button.treemap-back-button {
+  float: left;
+  margin-right: 5px;
+}
+
+div.treemap-app {
+  margin: 100px;
+}
+
 rect.grandparent {
   stroke-width: 3px;
   fill: orange;

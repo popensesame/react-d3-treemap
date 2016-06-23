@@ -16,7 +16,7 @@ const props = {
 }
 
 const mountingPoint = document.createElement('div');
-mountingPoint.className = 'react-app';
+mountingPoint.className = 'treemap-app';
 document.body.appendChild(mountingPoint);
 ReactDOM.render(<Treemap {...props}/>, mountingPoint)
 
