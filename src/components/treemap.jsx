@@ -13,7 +13,8 @@ export default class Treemap extends React.Component {
         .size([props.width, props.height - props.rootHeight])
         .value(props.value)
         .children(props.children)
-        .sort((a, b) => props.value(a) - props.value(b));
+        .sort((a, b) => props.value(a) - props.value(b))
+        .ratio(1);
     //this.treemap.nodes({children: props.root._children});
     this.layout(props.root);
     this.state = {
