@@ -4,6 +4,9 @@ import d3 from 'd3';
 const TOOLTIP_WIDTH = 170;
 const TOOLTIP_HEIGHT = 32;
 
+const BACK_BUTTON_TEXT = 'Up';
+const FORWARD_BUTTON_TEXT = 'Down';
+
 export default class Treemap extends React.Component {
 
   // componentWillMount()
@@ -20,6 +23,7 @@ export default class Treemap extends React.Component {
       grandparent: props.root,
       grandparentText: props.id(props.root),
       nodes: props.root._children,
+      focused: null,
       tooltip: null,
       xScale: d3.scale.linear()
         .domain([0, props.width])
@@ -37,42 +41,139 @@ export default class Treemap extends React.Component {
     });
   }
 
-  buttonSubmit() {
-    console.log('Back button pressed');
+  handleNodeClick(node) {
+    if (node !== this.state.focused) {
+      this.setState({
+        focused: node,
+      });
+    }
   }
+
+  zoom(node) {
+    if (node === this.state.grandparent) {
+      // Zoom OUT
+      node = node.parent;
+      this.setState({
+        focused: node,
+        grandparentText: this.state.grandparentText
+          .split(' => ').slice(0, -1).join(' => '),
+      });
+    } else {
+      // Zoom IN
+      this.setState({
+        grandparentText: this.state.grandparentText
+          += ' => ' + this.props.id(node)
+      });
+    }
+    this.layout(node);
+    this.setState({
+      focused: null,
+      grandparent: node,
+      nodes: node._children,
+    });
+  }
+
+
+  /*
+  setTooltip(node, event) {
+    // if the right edge of the tooltip is
+    // farther right than the right edge of the node rect,
+    // shift the tooltip to the left by the width of the tooltip
+    var tooltipX = event.nativeEvent.offsetX;
+    var tooltipY = event.nativeEvent.offsetY;
+    if ( (tooltipX + TOOLTIP_WIDTH) > (node.x + node.dx) )
+      tooltipX -= TOOLTIP_WIDTH*2;
+    else if ( (tooltipY + TOOLTIP_HEIGHT) > (node.y + node.dy) )
+      tooltipY -= TOOLTIP_HEIGHT*2
+    this.setState({
+      tooltip: {
+        OBJECTID: node.OBJECTID,
+        value: this.props.value(node),
+        id: this.props.id(node),
+        x: event.nativeEvent.offsetX,
+        y: event.nativeEvent.offsetY,
+      },
+    });
+  }
+  */
+
+  /***** RENDER *****/
 
   render() {
     return <div>
-      <button
-        className={'treemap-back-button'}
-        onClick={ this.state.grandparent.parent ?
-          this.zoom.bind(this, this.state.grandparent) : null
-        }
-      >
-        {'Back'}
-      </button>
-      <svg width={this.props.width} height={this.props.height}>
-        <g>
-          <g
-            className={'grandparent'}
-            onClick={
-              this.state.grandparent.parent ?
-              this.zoom.bind(this, this.state.grandparent) : null
-            }>
-            <rect
-              className={'grandparent'}
-              width={this.props.width}
-              height={this.props.rootHeight}>
-            </rect>
-            <text x={4} y={6}>{this.state.grandparentText}</text>
-          </g>
-          <g className={'depth'}>
-            { this.state.nodes.map( (node) => this.renderNode(node), this) }
-          </g>
-          { this.renderTooltip() }
-        </g>
-      </svg>
+      <div className="treemap-side">
+        <div className="treemap-nav">
+          { this.renderBackButton() }
+          { this.renderForwardButton() }
+        </div>
+        { this.renderNodeInfo() }
+      </div>
+      { this.renderTreemap() }
     </div>
+  }
+
+  /****** STATELESS FUNCTIONAL COMPONENTS ******/
+
+  renderForwardButton() {
+    return <button
+      className={'treemap-nav-button-forward'}
+      onClick={ this.state.focused && this.state.focused._children ?
+        this.zoom.bind(this, this.state.focused) : null
+      }
+      disabled={ this.state.focused && this.state.focused._children ? false : true }
+    >
+      {FORWARD_BUTTON_TEXT}
+    </button>
+
+  }
+
+  renderBackButton() {
+    return <button
+      className={'treemap-nav-button-back'}
+      onClick={ this.state.grandparent.parent ?
+        this.zoom.bind(this, this.state.grandparent) : null
+      }
+      disabled={ this.state.grandparent.parent ? false : true }
+    >
+      {BACK_BUTTON_TEXT}
+    </button>
+  }
+
+  renderNodeInfo() {
+    return <div className={'treemap-node-info'}>
+      <h3>BASELINE</h3>
+      <p>{ `OBJECTID: ${ this.state.focused ? this.state.focused.OBJECTID : '' }` }</p>
+      <p>{ `Chart Label: ${this.state.focused ? this.props.id(this.state.focused) : '' }` }</p>
+      <p>{ `Chart Value: ${this.state.focused ? this.state.focused.value : '' }`}</p>
+    </div>
+  }
+
+  /* SVG COMPONENTS */
+
+  renderTreemap() {
+    return <svg width={this.props.width} height={this.props.height}>
+    <g>
+      { this.renderGrandparent() }
+      { this.renderNodes() }
+    </g>
+  </svg>
+  }
+
+  renderGrandparent() {
+    return <g className={'grandparent'}>
+      <rect
+        className={'grandparent'}
+        width={this.props.width}
+        height={this.props.rootHeight}>
+      </rect>
+      <text x={4} y={6}>{this.state.grandparentText}</text>
+    </g>
+  }
+
+  renderNodes() {
+    return <g className={'depth'}>
+      { this.state.nodes.map( (node) => this.renderNode(node), this) }
+    </g>
   }
 
   renderNode(node) {
@@ -82,8 +183,9 @@ export default class Treemap extends React.Component {
         // <text> element should not be wider than the width of the child <rect>
         // or else this <g> element will be too wide and trigger the mouse event
         // even when the cursor is not visiting the rect element.
-        onMouseEnter={ this.setTooltip.bind(this, node) }
-        onClick={ node._children ? this.zoom.bind(this, node) : null }
+        
+        // onMouseEnter={ this.setTooltip.bind(this, node) }
+        onClick={ this.handleNodeClick.bind(this, node) }
       >
       { this.renderRect(node, node._children ? 'parent' : 'leaf') }
       { /* node._children.map( (child) => this.renderRect(child, 'child') ) */ }
@@ -103,7 +205,7 @@ export default class Treemap extends React.Component {
   renderRect(node, relation) {
     return <rect
       key={node.OBJECTID}
-      className={relation}
+      className={`treemap-rect ${this.state.focused === node ? 'focused-node' : relation}`}
       x={this.state.xScale(node.x)}
       y={this.state.yScale(node.y)}
       width={this.state.xScale(node.dx) - this.state.xScale(0)}
@@ -137,38 +239,6 @@ export default class Treemap extends React.Component {
         </text>
       </g>
     }
-  }
-
-  setTooltip(node, event) {
-    this.setState({
-      tooltip: {
-        value: this.props.value(node),
-        id: this.props.id(node),
-        x: event.screenX,
-        y: event.screenY,
-      },
-    });
-  }
-
-  zoom(node) {
-    if (node === this.state.grandparent) {
-      node = node.parent;
-      this.setState({
-        grandparentText: this.state.grandparentText
-          .split(' => ').slice(0, -1).join(' => '),
-      });
-    } else {
-      this.setState({
-        grandparentText: this.state.grandparentText
-          += ' => ' + this.props.id(node)
-      });
-    }
-    this.layout(node);
-    this.setState({
-      tooltip: null,
-      grandparent: node,
-      nodes: node._children,
-    });
   }
 }
 

@@ -1,3 +1,34 @@
+
+div.treemap-app {
+  margin: none;
+}
+
+div.treemap-side {
+  float: left;
+  min-width: 400px;
+  margin-right: 10px;
+}
+
+div.treemap-nav {
+  
+}
+
+div.treemap-node-info {
+  padding: 0px 5px 5px 5px;
+  background-color: orange;
+  border-width: 1px;
+  border-radius: 3px;
+}
+
+button.treemap-nav-button-back,
+button.treemap-nav-button-forward {
+  width: 50%;
+  height: 30px;
+}
+
+/* TREEMAP STYLES */
+
+/*
 rect.tooltip {
   position: relative;
   display: inline-block;
@@ -5,48 +36,37 @@ rect.tooltip {
   stroke-width: 1px;
   stroke: black;
 }
+*/
 
-button.treemap-back-button {
-  float: left;
-  margin-right: 5px;
+rect.treemap-rect {
+  stroke-width: 3px;
+  stroke: #fff;
+  fill: #bbb;
 }
 
-div.treemap-app {
-  margin: 100px;
+rect.treemap-rect:hover {
+  fill-opacity: .7;
+}
+
+rect.focused-node {
+  fill-opacity: .3;
+}
+
+rect.focused-node:hover {
+  fill-opacity: .3;
 }
 
 rect.grandparent {
-  stroke-width: 3px;
   fill: orange;
   fill-opacity: .8;
 }
 
 rect.grandparent:hover {
-  stroke-width: 3px;
   fill: orange;
   fill-opacity: 1;
 }
 
-rect.parent {
-  stroke-width: 3px;
-  stroke: #fff;
-  fill: #bbb;
-}
-
-rect.leaf {
-  fill: #bbb;
-  stroke-width: 3px;
-  stroke: #fff;
-}
-
-rect.child {
-  stroke-width: .5px;
-  stroke: #fff;
-  fill: #bbb;
-}
-
 .children rect.parent {
-  stroke-width: 3px;
   stroke: #fff;
   fill: #aaa;
 }
@@ -55,7 +75,7 @@ rect.child {
   stroke-width: 3px;
   stroke: #fff;
   fill: #bbb;
-  fill-opacity: .8;
+  fill-opacity: .7;
 }
 
 g.grandparent,
