@@ -243,8 +243,8 @@ export default class Treemap extends React.Component {
 }
 
 Treemap.defaultProps = {
-  width: 500,
-  height: 500,
+  width: 450,
+  height: 450,
   rootHeight: 20,
   value: (d) => d.chart_value,
   children: (d) => d.children,
